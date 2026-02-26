@@ -1,0 +1,24 @@
+name: Zenodo DOI Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  zenodo-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create ZIP archive
+        run: |
+          zip -r release.zip . -x "*.git*"
+
+      - name: Upload to Zenodo
+        run: |
+          curl -H "Content-Type: application/octet-stream" \
+               -H "Authorization: Bearer ${{ secrets.ZENODO_TOKEN }}" \
+               --upload-file release.zip \
+               https://zenodo.org/api/deposit/depositions/${{ secrets.ZENODO_DEPOSITION_ID }}/files?name=release.zip
